@@ -10,25 +10,18 @@ import qualified Data.Text as TXT
 import qualified Data.ByteString as BS
 import qualified Data.MultiSet as MS
 
-replaceNth :: [a] ->  (Int, a) -> [a]
-replaceNth [] _  = []
-replaceNth (x:xs) (n, newVal) 
+replaceNth :: [a] -> (Int, a) -> [a]
+replaceNth [] _ = []
+replaceNth (x:xs) (n, newVal)
   | n == 0 = newVal:xs
   | otherwise = x:replaceNth xs ((n-1), newVal)
 
 parseFromHex :: String -> [Int]
 parseFromHex cs = map (fromEnum) ws
   where ws = fromJust $ (fmap BS.unpack . decodeHex . TXT.pack) cs
--- map ord cs
 
 parseToHex :: [Int] -> String
 parseToHex xs = map chr xs
-
-xorStrings :: String -> String -> [Int]
-xorStrings s1 s2 = x3
-  where x1 = parseFromHex s1
-        x2 = parseFromHex s2
-        x3 = zipWith (\x y -> x `xor` y) x1 x2
 
 xorIntLists :: [Int] -> [Int] -> [Int]
 xorIntLists x1 x2 = zipWith (\x y -> x `xor` y) x1 x2
@@ -48,7 +41,7 @@ setKeyHelper :: [Int] -> [Int] -> [Int] -> [Int]
 setKeyHelper _ key [] = key
 setKeyHelper cipher key (i:indices) = setKeyHelper cipher key' indices
   where c = (cipher!!i) `xor` (ord ' ')
-        key' = replaceNth key (i, c) 
+        key' = replaceNth key (i, c)
 
 setKey :: [[Int]] -> [Int] -> [Int] -> [Int]
 setKey cts key ct = setKeyHelper ct key inds
@@ -57,7 +50,7 @@ setKey cts key ct = setKeyHelper ct key inds
 decipher :: [Int] -> String -> String
 decipher key cipher = parseToHex plain
   where is = parseFromHex cipher
-        plain = zipWith (\x y -> x `xor` y) is key
+        plain = xorIntLists is key
 
 cipherTexts =
   ["315c4eeaa8b5f8aaf9174145bf43e1784b8fa00dc71d885a804e5ee9fa40b16349c146fb778cdf2d3aff021dfff5b403b510d0d0455468aeb98622b137dae857553ccd8883a7bc37520e06e515d22c954eba5025b8cc57ee59418ce7dc6bc41556bdb36bbca3e8774301fbcaa3b83b220809560987815f65286764703de0f3d524400a19b159610b11ef3e",
@@ -72,6 +65,9 @@ cipherTexts =
    "466d06ece998b7a2fb1d464fed2ced7641ddaa3cc31c9941cf110abbf409ed39598005b3399ccfafb61d0315fca0a314be138a9f32503bedac8067f03adbf3575c3b8edc9ba7f537530541ab0f9f3cd04ff50d66f1d559ba520e89a2cb2a83",
    "32510ba9babebbbefd001547a810e67149caee11d945cd7fc81a05e9f85aac650e9052ba6a8cd8257bf14d13e6f0a803b54fde9e77472dbff89d71b57bddef121336cb85ccb8f3315f4b52e301d16e9f52f904"]
 
+-- these were calculated 'by hand' after the first process calculated most of the key
+fixes = [(2, 110), (7,204), (10,53), (14,149), (18, 206), (25, 127), (30, 197),
+         (31,11), (32,105), (33,176), (34,51), (35, 154), (42,109)]
 main = do
   putStrLn "Week 1"
 
@@ -91,8 +87,3 @@ main = do
   let nn = zipWith (\x y -> x `xor` y) key (map ord "attack at dusk")
 
   putStrLn $ show $ encodeHex $ BS.pack $ map (toEnum) nn
-
-
--- these were calculated 'by hand' after the first process calculated most of the key
-fixes = [(2, 110), (7,204), (10,53), (14,149), (18, 206), (25, 127), (30, 197),
-         (31,11), (32,105), (33,176), (34,51), (35, 154), (42,109)]
