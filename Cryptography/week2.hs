@@ -62,6 +62,11 @@ questions = [("140b41b22a29beb4061bda66b6747e14",
               "69dda8455c7dd4254bf353b773304eec0ec7702330098ce7f7520d1cbbb20fc388d1b0adb5054dbd7370849dbf0b88d393f252e764f1f5f7ad97ef79d59ce29f5f51eeca32eabedd9afa9329"),
              ("36f18357be4dbd77f050515c73fcf9f2",
               "770b80259ec33beb2561358a9f2dc617e46218c0a53cbeca695ae45faa8952aa0e311bde9d4e01726d3184c34451")]
+exam = [("9f970f4e", "6068f0b1"),
+        ("7c2822eb", "325032a9"),
+        ("4af53267", "87a40cfa"),
+        ("2d1cfa42", "eea6e3dd")]
+
 main = do
   putStrLn "Week 2"
 
@@ -93,5 +98,8 @@ main = do
   -- putStrLn $ show (nonce <> ctr)
   -- putStrLn iv
   -- putStrLn msg
+
+  let examQ = map (\(x,y) -> BS.zipWith xor (parseFromHex x) (parseFromHex y)) exam
+  putStrLn $ show examQ
 
   putStrLn $ show "Done"
